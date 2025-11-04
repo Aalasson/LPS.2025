@@ -1,0 +1,6 @@
+
+<!doctype html><html lang='pt-br'><meta charset='utf-8'><body style='font-family: system-ui, Arial; margin:24px'>
+<h1>Status dos Microserviços</h1>
+<ul>{% for s in statuses %}<li>{{ s.name }} — {% if not s.enabled %}off{% elif s.ok %}ok{% else %}fail{% endif %}</li>{% endfor %}</ul>
+<pre>{{ config | tojson(indent=2) }}</pre>
+</body></html>

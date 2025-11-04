@@ -1,0 +1,44 @@
+[
+  {
+    "sku": "SKU1",
+    "name": "Tênis Running Pro",
+    "description": "Tênis leve para corrida, cabedal respirável e espuma responsiva.",
+    "category": "Calçados",
+    "price": 299.9
+  },
+  {
+    "sku": "SKU2",
+    "name": "Camiseta DryFit",
+    "description": "Camiseta esportiva com tecnologia dryfit para treinos.",
+    "category": "Vestuário",
+    "price": 79.9
+  },
+  {
+    "sku": "SKU3",
+    "name": "Garrafa Térmica 750ml",
+    "description": "Aço inox, mantém a temperatura por horas.",
+    "category": "Acessórios",
+    "price": 119.0
+  },
+  {
+    "sku": "SKU4",
+    "name": "Fone Bluetooth Sport",
+    "description": "Resistente ao suor, bateria longa.",
+    "category": "Eletrônicos",
+    "price": 249.0
+  },
+  {
+    "sku": "SKU5",
+    "name": "Meia Compressão",
+    "description": "Suporte e conforto em corridas.",
+    "category": "Vestuário",
+    "price": 39.9
+  },
+  {
+    "sku": "SKU6",
+    "name": "Shorts Training",
+    "description": "Leve, com bolsos e ajuste elástico.",
+    "category": "Vestuário",
+    "price": 99.9
+  }
+]
