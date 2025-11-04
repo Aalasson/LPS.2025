@@ -1,6 +1,34 @@
+<!doctype html>
+<html lang="pt-br">
+<meta charset="utf-8">
+<body style="font-family: system-ui, Arial; margin: 24px; background: #0f172a; color: #e2e8f0">
+  <h1>Status dos Microserviços</h1>
+  <p>Mostrando serviços + configuração em memória (vinda do /config).</p>
 
-<!doctype html><html lang='pt-br'><meta charset='utf-8'><body style='font-family: system-ui, Arial; margin:24px'>
-<h1>Status dos Microserviços</h1>
-<ul>{% for s in statuses %}<li>{{ s.name }} — {% if not s.enabled %}off{% elif s.ok %}ok{% else %}fail{% endif %}</li>{% endfor %}</ul>
-<pre>{{ config | tojson(indent=2) }}</pre>
-</body></html>
+  <h2>Serviços</h2>
+  <ul>
+    {% for s in statuses %}
+      <li>
+        <strong>{{ s.name }}</strong> —
+        {% if not s.enabled %}
+          desativado
+        {% elif s.ok %}
+          <span style="color:#22c55e">ok</span>
+        {% else %}
+          <span style="color:#ef4444">falhou</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+  <h2>Configuração atual</h2>
+  <pre style="background:#111827; padding:10px; border-radius:8px; white-space:pre-wrap;">
+locale: {{ config.ui.locale }}
+currency: {{ config.ui.currency }}
+payments: {{ config.payments }}
+shipping: {{ config.shipping }}
+recommendation: {{ config.reco }}
+checkout: {{ config.checkout }}
+  </pre>
+</body>
+</html>

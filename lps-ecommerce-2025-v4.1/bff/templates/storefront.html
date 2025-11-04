@@ -1,74 +1,293 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>LPS Shop • Storefront</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --bg:#0b0c10; --surface:#111217; --muted:#1a1c23; --card:#151823; --card-2:#121420;
+      --text:#e5e7eb; --sub:#a3a7b3; --brand:#7c3aed; --brand-2:#9333ea; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+      --ring: rgba(124,58,237,0.35);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#0e1016);color:var(--text);font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;background:rgba(11,12,16,0.75);backdrop-filter:blur(8px);z-index:40;border-bottom:1px solid #1f2330}
+    .header-wrap{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:12px 24px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
+    .dot{width:12px;height:12px;border-radius:50%;background:conic-gradient(var(--brand), var(--brand-2))}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid #232739;border-radius:999px;background:linear-gradient(180deg,#101221,var(--card));color:#cbd5e1;font-size:12px}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;background:#1c1f2d;border:1px solid #2b3147;color:#cbd5e1;font-size:12px}
+    .stack{display:flex;gap:8px;flex-wrap:wrap}
+    .search{display:flex;gap:10px;align-items:center;background:var(--muted);border:1px solid #22263a;border-radius:12px;padding:8px 12px;min-width:280px}
+    .search input{all:unset;width:100%;color:var(--text)}
+    .button{all:unset;background:linear-gradient(180deg,#1b2033,#151a2a);border:1px solid #2b3350;color:#e7e9f3;padding:10px 14px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+    .button.primary{background:linear-gradient(180deg,var(--brand-2),var(--brand));border-color:transparent;box-shadow:0 8px 18px -8px var(--ring)}
+    .button.ghost{background:transparent;border-color:#303852;color:#cbd5e1}
+    .button:focus{outline:2px solid var(--ring)}
+    main{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:20px}
+    @media(max-width: 960px){ main{grid-template-columns:1fr} .sidebar{order:2} }
+    .sidebar{background:var(--surface);border:1px solid #1f2330;border-radius:16px;padding:16px;position:sticky;top:76px;height:fit-content}
+    .panel{background:var(--surface);border:1px solid #1f2330;border-radius:16px;padding:16px}
+    h2{margin:0 0 10px 0;font-size:18px}
+    .features{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media(max-width:1200px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:720px){ .grid{grid-template-columns:1fr} }
+    .card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid #1e2232;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+    .img{aspect-ratio:4/3;background:#0e1220;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #1f2330}
+    .img svg{width:56%;opacity:.9}
+    .card-body{padding:14px;display:flex;flex-direction:column;gap:10px}
+    .title{font-weight:600}
+    .sub{color:#aab0c2;font-size:13px}
+    .price{font-weight:700;letter-spacing:.3px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .status{display:flex;gap:6px;flex-wrap:wrap}
+    .status .s{display:flex;gap:6px;align-items:center;padding:2px 8px;border-radius:999px;border:1px solid #27304a;background:#121628}
+    .s .led{width:8px;height:8px;border-radius:999px}
+    .ok .led{background:var(--ok)} .fail .led{background:var(--err)} .off .led{background:#475569}
+    .kpi{display:flex;gap:16px;flex-wrap:wrap}
+    .kpi .tile{background:var(--surface);border:1px solid #23283b;border-radius:14px;padding:10px 12px;font-size:13px;color:#cbd5e1}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:12px}
+    .filters{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;background:#171a28;border:1px solid #2b3147;font-size:12px;cursor:pointer}
+    .chip.active{background:#262b44;border-color:#3b4670}
+    .cart-drawer{position:fixed;right:16px;bottom:16px;width:360px;max-height:80vh;overflow:auto;background:var(--surface);border:1px solid #1f2330;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.35);padding:16px;display:none}
+    .cart-drawer.show{display:block}
+    .item{display:flex;align-items:center;justify-content:space-between;margin:6px 0}
+    .qty{display:flex;gap:6px;align-items:center}
+    .input{all:unset;background:#121627;border:1px solid #27304a;border-radius:10px;color:#dbe2f5;padding:8px 10px}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:#0f172a;color:#e2e8f0;border:1px solid #27304a;padding:10px 14px;border-radius:999px;display:none}
+    .reco{display:flex;gap:8px;overflow:auto;padding-bottom:6px}
+    .chip2{white-space:nowrap;border:1px dashed #3a4160;background:#131728;border-radius:999px;padding:6px 10px;font-size:12px}
+    footer{margin:40px 0 20px;color:#7e89a7;font-size:12px;text-align:center}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-wrap">
+      <div class="brand">
+        <div class="dot"></div><div>LPS <span style="opacity:.75">Shop</span></div>
+      </div>
+      <div class="search" style="flex:1;max-width:560px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.2-4.2m1.7-5.3a7 7 0 11-14 0 7 7 0 0114 0z" stroke="#9aa3ba" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="q" placeholder="Buscar produtos, categorias..." oninput="catalog(this.value)">
+      </div>
+      <div class="stack">
+        <span class="pill" id="feature-pay"></span>
+        <button class="button" onclick="toggleCart()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l.4 2M7 13h9l3-8H5.4M7 13L5.4 5M7 13l-2 7m2-7l2 7m5-7l2 7" stroke="#e9e8ff" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Carrinho <span class="badge"><span id="cart-count">0</span></span>
+        </button>
+      </div>
+    </div>
+  </header>
 
-<!doctype html><html lang='pt-br'><meta charset='utf-8'><title>Storefront • LPS Demo</title>
-<body style='font-family: system-ui, Arial; margin:20px'>
-<h2>Storefront</h2>
-<div>
-  <label>Session ID <input id='sid' value='demo-123'></label>
-  <label>CEP <input id='zip' placeholder='00000000'></label>
-  <label>Pagamento <select id='pay'></select></label>
-  <button onclick='refreshAll()'>Atualizar</button>
-</div>
-<h3>Microserviços</h3><div id='svc'></div>
-<h3>Catálogo</h3><div id='catalog'></div>
-<h3>Carrinho</h3><div id='cart'></div>
-<h3>Frete</h3><div id='ship'>Informe CEP e clique em calcular.</div><button onclick='quote()'>Calcular frete</button>
-<h3>Checkout</h3><div id='checkout'></div><button onclick='checkout()'>Finalizar compra</button>
-<h3>Recomendações</h3><div id='reco'></div>
-<script>
-const API = location.origin;
-const el = (id)=>document.getElementById(id);
-const sid = ()=> el('sid').value || 'demo-123';
-async function j(url, opts={}){ const r=await fetch(url, opts); if(!r.ok) throw new Error(await r.text()); return r.json(); }
-async function status(){
-  const s=await j(`${API}/api/v1/status`);
-  el('pay').innerHTML = (s.config.payments||[]).map(p=>`<option>${p}</option>`).join('');
-}
-async function catalog(){
-  const data=await j(`${API}/api/v1/catalog/products`);
-  el('catalog').innerHTML = data.map(p=>`<div style="margin:6px 0">
-    <b>${p.sku}</b> - ${p.name} — R$ ${p.price.toFixed(2)}
-    <button onclick="addToCart('${p.sku}')">+ Carrinho</button>
-    <button onclick="reco('${p.sku}')">Ver similares</button>
-  </div>`).join('');
-}
-async function cart(){
-  const data=await j(`${API}/api/v1/cart`, { headers:{'X-Session-Id': sid()} });
-  const items=data.items||{};
-  el('cart').innerHTML = Object.keys(items).length? Object.entries(items).map(([sku,qty])=>
-    `<div>${sku} — qtd ${qty}
-      <button onclick="addToCart('${sku}')">+</button>
-      <button onclick="delFromCart('${sku}')">remover</button>
-    </div>`).join('') : 'Vazio';
-}
-async function addToCart(sku){
-  await j(`${API}/api/v1/cart/items`, { method:'POST', headers:{'Content-Type':'application/json','X-Session-Id':sid()}, body:JSON.stringify({sku,qty:1}) });
-  await cart();
-}
-async function delFromCart(sku){
-  await j(`${API}/api/v1/cart/items/${sku}`, { method:'DELETE', headers:{'X-Session-Id':sid()} });
-  await cart();
-}
-async function quote(){
-  try{
-    const z=el('zip').value||'00000000';
-    const q=await j(`${API}/api/v1/shipping/quote?zip=${encodeURIComponent(z)}`, { headers:{'X-Session-Id':sid()} });
-    el('ship').textContent = `${q.mode} — R$ ${q.cost.toFixed(2)} • ETA ${q.eta_days} dia(s) [${q.carrier}]`;
-  }catch(e){ el('ship').textContent = 'Erro: '+e.message; }
-}
-async function checkout(){
-  try{
-    const method = el('pay').value || 'pix';
-    const r = await j(`${API}/api/v1/checkout/start`, { method:'POST', headers:{'Content-Type':'application/json','X-Session-Id':sid()}, body:JSON.stringify({payment_method:method})});
-    el('checkout').textContent = `Pedido #${r.order_id} • Total R$ ${r.total.toFixed(2)}`;
-  }catch(e){ el('checkout').textContent = 'Erro: '+e.message; }
-}
-async function reco(sku){
-  try{
-    const r=await j(`${API}/api/v1/recommendations?context=product&item_id=${encodeURIComponent(sku)}&limit=6`);
-    el('reco').innerHTML = (r.items||[]).map(i=>`<span style="margin:2px;padding:2px 6px;border:1px solid #ddd;border-radius:999px">${i.item_id}</span>`).join('');
-  }catch{ el('reco').textContent='Recomendações indisponíveis'; }
-}
-async function refreshAll(){ await status(); await catalog(); await cart(); }
-refreshAll();
-</script>
-</body></html>
+  <div class="container">
+    <div class="panel">
+      <div class="toolbar">
+        <div class="kpi">
+          <div class="tile">Locale: <b id="k-locale">pt-BR</b></div>
+          <div class="tile">Moeda: <b id="k-currency">BRL</b></div>
+          <div class="tile">Recomendação: <b id="k-reco">content</b></div>
+          <div class="tile">Frete: <b id="k-ship">transportadora</b></div>
+          <div class="tile">Sessão: <b id="k-sid">...</b></div>
+        </div>
+        <div class="status" id="svc"></div>
+      </div>
+    </div>
+
+    <main>
+      <aside class="sidebar">
+        <h2>Filtros</h2>
+        <div class="features" id="filters"></div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="button ghost" onclick="clearFilters()">Limpar</button>
+          <button class="button" onclick="catalog(document.getElementById('q').value||'')">Aplicar</button>
+        </div>
+        <hr style="border:none;border-top:1px solid #23283b;margin:14px 0">
+        <h2>Recomendações</h2>
+        <div id="reco" class="reco"></div>
+      </aside>
+
+      <section class="panel">
+        <div class="grid" id="grid"></div>
+      </section>
+    </main>
+    <footer>Built with FastAPI • BFF • Microserviços • LPS (features)</footer>
+  </div>
+
+  <div class="cart-drawer" id="drawer">
+    <div class="row">
+      <h2 style="margin:0">Carrinho</h2>
+      <button class="button ghost" onclick="toggleCart()">Fechar</button>
+    </div>
+    <div id="cart"></div>
+    <hr style="border:none;border-top:1px solid #23283b;margin:14px 0">
+    <div class="row">
+      <input class="input" id="zip" placeholder="CEP (ex: 00000000)">
+      <button class="button" onclick="quote()">Calcular frete</button>
+    </div>
+    <div id="ship" class="sub" style="margin-top:8px">Informe o CEP para cotar.</div>
+    <div style="margin-top:14px" class="row">
+      <select class="input" id="pay" style="width:55%"></select>
+      <button class="button primary" onclick="checkout()" style="width:43%">Finalizar</button>
+    </div>
+    <div id="checkout" class="sub" style="margin-top:10px"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Utilities
+    const API = location.origin;
+    const el = id => document.getElementById(id);
+    const sleep = ms => new Promise(r=>setTimeout(r,ms));
+    const fmt = v => 'R$ ' + (v||0).toFixed(2).replace('.',',');
+    function sessionId(){
+      const k='lps_sid'; let s=localStorage.getItem(k);
+      if(!s){ s = 'sess-' + Math.random().toString(36).slice(2,10); localStorage.setItem(k,s); }
+      return s;
+    }
+    function toast(msg, ms=1800){
+      const t = el('toast'); t.textContent = msg; t.style.display='block';
+      setTimeout(()=>t.style.display='none', ms);
+    }
+
+    // Status / Features / Payments
+    async function status(){
+      const s=await (await fetch(`${API}/api/v1/status`)).json();
+      // microservices state
+      el('svc').innerHTML = Object.keys(s).filter(k=>k!=='config').map(k=>{
+        const v=s[k]; const cls = !v.enabled?'off':(v.ok?'ok':'fail');
+        return `<span class="s ${cls}"><span class="led"></span>${k}</span>`;
+      }).join('');
+      // features
+      const cfg = s.config;
+      el('k-locale').textContent = cfg.ui.locale;
+      el('k-currency').textContent = cfg.ui.currency;
+      el('k-reco').textContent = cfg.reco.strategy + (cfg.reco.enabled?' (on)':' (off)');
+      el('k-ship').textContent = cfg.shipping.mode + (cfg.shipping.enabled?' (on)':' (off)');
+      el('k-sid').textContent = sessionId();
+      // payments
+      const p = (cfg.payments||[]);
+      el('feature-pay').innerHTML = `Pagamentos: <b>${p.join(', ')||'-'}</b>`;
+      el('pay').innerHTML = p.map(x=>`<option>${x}</option>`).join('');
+    }
+
+    // Catalog, Filters & Cards
+    let ALL = []; let ACTIVE_CATS = new Set();
+    function svgPlaceholder(sku){
+      const hue = Math.abs(Array.from(sku).reduce((a,c)=>a+c.charCodeAt(0),0)) % 360;
+      return `<svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="hsl(${hue},60%,30%)"/><stop offset="100%" stop-color="hsl(${(hue+40)%360},60%,18%)"/></linearGradient></defs>
+        <rect width="160" height="120" fill="url(#g)"/>
+        <g fill="rgba(255,255,255,.75)" font-size="14" font-family="system-ui,Arial">
+          <text x="10" y="26">${sku}</text>
+          <text x="10" y="50">Produto</text>
+        </g>
+      </svg>`;
+    }
+    function renderFilters(){
+      const cats = Array.from(new Set(ALL.map(p=>p.category))).sort();
+      el('filters').innerHTML = cats.map(c=>`<span class="chip ${ACTIVE_CATS.has(c)?'active':''}" onclick="toggleCat('${c}')">${c}</span>`).join('');
+    }
+    function toggleCat(c){
+      if(ACTIVE_CATS.has(c)) ACTIVE_CATS.delete(c); else ACTIVE_CATS.add(c);
+      renderFilters(); renderGrid(ALL);
+    }
+    function clearFilters(){ ACTIVE_CATS.clear(); renderFilters(); renderGrid(ALL); }
+
+    function renderGrid(list){
+      const filtered = list.filter(p=> ACTIVE_CATS.size? ACTIVE_CATS.has(p.category): true);
+      el('grid').innerHTML = filtered.map(p=>`
+        <article class="card">
+          <div class="img">${svgPlaceholder(p.sku)}</div>
+          <div class="card-body">
+            <div class="title">${p.name}</div>
+            <div class="sub">${p.category}</div>
+            <div class="row">
+              <div class="price">${fmt(p.price)}</div>
+              <div class="stack">
+                <button class="button ghost" onclick="reco('${p.sku}')">Similares</button>
+                <button class="button" onclick="addToCart('${p.sku}')">Adicionar</button>
+              </div>
+            </div>
+          </div>
+        </article>`).join('');
+    }
+
+    async function catalog(q=''){
+      const r = await (await fetch(`${API}/api/v1/catalog/products${q?`?q=${encodeURIComponent(q)}`:''}`)).json();
+      ALL = r; renderFilters(); renderGrid(ALL);
+    }
+
+    // Cart drawer
+    function toggleCart(){ el('drawer').classList.toggle('show'); refreshCart(); }
+    async function refreshCart(){
+      const data = await (await fetch(`${API}/api/v1/cart`, {headers:{'X-Session-Id':sessionId()}})).json();
+      const it = data.items||{};
+      el('cart-count').textContent = Object.values(it).reduce((a,b)=>a+Number(b),0);
+      el('cart').innerHTML = Object.keys(it).length? Object.entries(it).map(([sku,qty])=>`
+        <div class="item">
+          <span>${sku}</span>
+          <span class="qty">
+            <button class="button ghost" onclick="addToCart('${sku}',-1)">-</button>
+            <b>${qty}</b>
+            <button class="button ghost" onclick="addToCart('${sku}',1)">+</button>
+            <button class="button" onclick="delFromCart('${sku}')">remover</button>
+          </span>
+        </div>`).join('') : '<div class="sub">Seu carrinho está vazio.</div>';
+    }
+    async function addToCart(sku, delta=1){
+      if(delta<0){
+        await fetch(`${API}/api/v1/cart/items/${sku}`, {method:'DELETE', headers:{'X-Session-Id':sessionId()}});
+      }else{
+        await fetch(`${API}/api/v1/cart/items`, {method:'POST', headers:{'Content-Type':'application/json','X-Session-Id':sessionId()}, body:JSON.stringify({sku,qty:1})});
+      }
+      toast('Carrinho atualizado'); await refreshCart();
+    }
+    async function delFromCart(sku){
+      await fetch(`${API}/api/v1/cart/items/${sku}`, {method:'DELETE', headers:{'X-Session-Id':sessionId()}});
+      toast('Item removido'); await refreshCart();
+    }
+
+    // Shipping + Checkout
+    async function quote(){
+      try{
+        const z = el('zip').value || '00000000';
+        const q = await (await fetch(`${API}/api/v1/shipping/quote?zip=${encodeURIComponent(z)}`, {headers:{'X-Session-Id':sessionId()}})).json();
+        el('ship').textContent = `${q.mode} — ${fmt(q.cost)} • ETA ${q.eta_days} dia(s) [${q.carrier}]`;
+      }catch(e){ el('ship').textContent = 'Erro ao calcular frete'; }
+    }
+    async function checkout(){
+      try{
+        const method = el('pay').value || 'pix';
+        const r = await (await fetch(`${API}/api/v1/checkout/start`, {method:'POST', headers:{'Content-Type':'application/json','X-Session-Id':sessionId()}, body:JSON.stringify({payment_method:method})})).json();
+        if(r && r.order_id){ el('checkout').textContent = `Pedido #${r.order_id} • Total ${fmt(r.total)}`; toast('Pedido concluído!'); }
+        else { el('checkout').textContent = 'Não foi possível concluir o pedido.'; }
+      }catch(e){ el('checkout').textContent = 'Erro no checkout'; }
+    }
+
+    // Recommendations
+    async function reco(sku){
+      try{
+        const r = await (await fetch(`${API}/api/v1/recommendations?context=product&item_id=${encodeURIComponent(sku)}&limit=8`)).json();
+        el('reco').innerHTML = (r.items||[]).map(i=>`<span class="chip2">${i.item_id}</span>`).join('');
+        toast('Recomendações atualizadas');
+      }catch(e){
+        el('reco').innerHTML = '<span class="chip2">Recomendações indisponíveis</span>';
+      }
+    }
+
+    // Init
+    (async function init(){
+      await status();
+      await catalog('');
+      await refreshCart();
+    })();
+  </script>
+</body>
+</html>

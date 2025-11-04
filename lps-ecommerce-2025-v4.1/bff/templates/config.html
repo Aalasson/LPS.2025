@@ -1,26 +1,124 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Seletor de Features (LPS)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+    h1 { margin-bottom: 10px; }
+    p { margin-bottom: 20px; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 14px; padding: 16px; max-width: 640px; }
+    label { display: block; margin-top: 10px; font-weight: 500; }
+    input, select {
+      width: 100%; padding: 6px 8px; margin-top: 4px;
+      background: #0f172a; border: 1px solid #1f2937; border-radius: 8px; color: inherit;
+    }
+    .row { display: flex; gap: 12px; }
+    .row > div { flex: 1; }
+    button {
+      background: #7c3aed; border: none; border-radius: 10px;
+      padding: 8px 14px; color: #fff; margin-top: 16px; cursor: pointer;
+    }
+    .ok { margin-top: 10px; color: #22c55e; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Seletor de Features (runtime)</h1>
+  <p>Escolha o que fica ativo agora. Não precisa gerar YAML.</p>
 
-<!doctype html><html lang='pt-br'><meta charset='utf-8'><body style='font-family: system-ui, Arial; margin:24px'>
-<h1>Seletor de Features</h1>
-<form method='post' action='/config'>
-  <p>Locale: <input name='locale' value='pt-BR'></p>
-  <p>Moeda: <input name='currency' value='BRL'></p>
-  <p>Pagamentos: <input name='payments' value='card,pix,boleto,wallet'></p>
-  <p>Recomendação:
-    <select name='reco_strategy'>
-      <option value='off'>off</option>
-      <option value='content' selected>content</option>
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Locale</label>
+        <select id="locale">
+          <option value="pt-BR">pt-BR</option>
+          <option value="en-US">en-US</option>
+        </select>
+      </div>
+      <div>
+        <label>Moeda</label>
+        <select id="currency">
+          <option value="BRL">BRL</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Métodos de pagamento (separe por vírgula)</label>
+    <input id="payments" value="card,pix,boleto,wallet">
+
+    <label>Recomendação</label>
+    <select id="reco">
+      <option value="content">Ligada (content-based)</option>
+      <option value="off">Desligada</option>
     </select>
-  </p>
-  <p>Checkout convidado:
-    <select name='checkout_guest'><option value='true' selected>true</option><option value='false'>false</option></select>
-    One-click:
-    <select name='checkout_oneclick'><option value='false' selected>false</option><option value='true'>true</option></select>
-  </p>
-  <p>Frete habilitado:
-    <select name='shipping_enabled'><option value='true' selected>true</option><option value='false'>false</option></select>
-    Modo:
-    <select name='shipping_mode'><option value='transportadora' selected>transportadora</option><option value='retirada'>retirada</option></select>
-  </p>
-  <button type='submit'>Gerar features.yaml</button>
-</form>
-</body></html>
+
+    <label>Frete habilitado?</label>
+    <select id="shipping-enabled">
+      <option value="true">Sim</option>
+      <option value="false">Não</option>
+    </select>
+
+    <label>Modo de frete</label>
+    <select id="shipping-mode">
+      <option value="transportadora">Transportadora</option>
+      <option value="retirada">Retirada na loja</option>
+    </select>
+
+    <label>Checkout convidado?</label>
+    <select id="checkout-guest">
+      <option value="true">Sim</option>
+      <option value="false">Não</option>
+    </select>
+
+    <label>One-click?</label>
+    <select id="checkout-oneclick">
+      <option value="false">Não</option>
+      <option value="true">Sim</option>
+    </select>
+
+    <button onclick="apply()">Aplicar</button>
+    <div class="ok" id="ok">Configurações aplicadas!</div>
+  </div>
+
+  <script>
+    async function apply(){
+      const payload = {
+        ui: {
+          locale: document.getElementById('locale').value,
+          currency: document.getElementById('currency').value,
+        },
+        payments: {
+          methods: document.getElementById('payments').value
+            .split(',')
+            .map(x => x.trim())
+            .filter(Boolean),
+        },
+        recommendation: {
+          strategy: document.getElementById('reco').value,
+        },
+        shipping: {
+          enabled: document.getElementById('shipping-enabled').value === 'true',
+          mode: document.getElementById('shipping-mode').value,
+        },
+        checkout: {
+          guest: document.getElementById('checkout-guest').value === 'true',
+          oneclick: document.getElementById('checkout-oneclick').value === 'true',
+        },
+      };
+
+      const res = await fetch('/config/apply', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+      });
+
+      if(res.ok){
+        document.getElementById('ok').style.display = 'block';
+        setTimeout(() => document.getElementById('ok').style.display = 'none', 2000);
+      }
+    }
+  </script>
+</body>
+</html>
